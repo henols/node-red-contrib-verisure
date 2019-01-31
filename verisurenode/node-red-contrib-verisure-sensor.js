@@ -47,6 +47,9 @@ module.exports = function (RED) {
             case 'doorWindow':
               currentReadings = doorWindowGet(msg, overview);
               break;
+            case 'smartPlug':
+              currentReadings = smartPlugGet(msg, overview);
+              break;
             default:
               currentReadings = { 'Error': true, 'message': 'No such type: ' + msg.payload.type };
               break;
@@ -135,6 +138,24 @@ module.exports = function (RED) {
     else if (typeof msg.payload.label === 'string' && msg.payload.label !== '') {
       let label = msg.payload.label;
       return findByLabel(overview.doorWindow.doorWindowDevice, label) || { 'Error': true, 'message': 'No such device with label: ' + label };
+    }
+    else {
+      return { 'Error': true, 'message': 'No valid id provided (label, index, area)' };
+    }
+  }
+  // Function for parsing arguments and fetching ordered lock data
+  function smartPlugGet (msg, overview) {
+    if (typeof msg.payload.index === 'number' && msg.payload.index >= 0) {
+      let index = msg.payload.index;
+      return overview.smartPlugs[index] || { 'Error': true, 'message': 'No such smartPlug device with index: ' + index };
+    }
+    else if (typeof msg.payload.area === 'string' && msg.payload.area !== '') {
+      let area = msg.payload.area;
+      return findByArea(overview.smartPlugs, area) || { 'Error': true, 'message': 'No such smartPlug device with name: ' + area };
+    }
+    else if (typeof msg.payload.label === 'string' && msg.payload.label !== '') {
+      let label = msg.payload.label;
+      return findByLabel(overview.smartPlugs, label) || { 'Error': true, 'message': 'No such device with label: ' + label };
     }
     else {
       return { 'Error': true, 'message': 'No valid id provided (label, index, area)' };
